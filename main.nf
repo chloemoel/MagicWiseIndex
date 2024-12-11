@@ -1,5 +1,8 @@
 #!/usr/bin/env nextflow
 
+include { PROCESS_SAMPLES } from './BeWISE/processsamples/main.nf'
+include { CALCULATE_SCORE } from './BeWISE/calculatescore/main.nf'
+
 /*
  * Pipeline parameters
  */
@@ -8,54 +11,6 @@
 params.probe_info          = "${projectDir}/data/ref/probe_info.csv"
 params.batch_correction    = null
 params.additional_data     = null
-
-process PROCESS_SAMPLES {
-
-    conda /*TODO add conda info*/
-
-    publishDir 'BeWISE_outputs', mode: 'symlink'
-
-    input:
-        path additional_data
-        val batch_correction
-        path sample_sheet
-        path sample_m_vals
-        
-    output:
-        path("${sample_m_vals}_processed.csv"), emit: csv
-
-    script:
-    '''
-    python3 data_cleanup.py \
-        -a ${additional_data} \
-        -b ${batch_correction} \
-        ${sample_sheet} \
-        ${sample_m_vals}
-    '''
-}
-
-process CALCULATE_SCORE {
-
-    conda /*ADD CONDA*/
-
-    publishDir 'BeWISE_outputs', mode: 'symlink'
-
-    input:
-       path sample_m_values 
-       path probe_info
-    
-    output:
-        path "bewise_scores.csv", emit: csv
-
-    script:
-    '''
-    python3 calculate_score.py \
-        ${probe_info} \
-        ${sample_m_vals}
-    '''
-
-}
-
 
 workflow {
 
