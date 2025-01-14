@@ -41,7 +41,7 @@ process PROCESS_SAMPLES {
 
         if "${batch_correction}" != "null":
             if "${additional_data}" != "null":
-                additional_data = pd.read_csv("${additional_data}")
+                additional_data = pd.read_csv("${additional_data}", index_col=0)
                 sample_info = sample_info.merge(additional_data, left_index=True, right_index=True)
 
             sample_info["array_id"] = sample_info["Sentrix_ID"].astype("str") + "_" + sample_info["Sentrix_Position"].astype("str")
