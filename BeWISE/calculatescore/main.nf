@@ -6,7 +6,7 @@ process CALCULATE_SCORE {
     publishDir params.outdir, mode: 'symlink'
 
     input:
-       path sample_m_values 
+       path processed_m_values 
        path probe_info
     
     output:
@@ -19,7 +19,7 @@ process CALCULATE_SCORE {
     import numpy as np
 
     probe_info = pd.read_csv("${probe_info}", index_col=0)
-    m_values = pd.read_csv("${sample_m_values}", index_col=0)
+    m_values = pd.read_csv("${processed_m_values}", index_col=0)
 
     ## Merge m values with probe information
     score = m_values.merge(probe_info[["weights"]], left_index=True, right_index=True)
