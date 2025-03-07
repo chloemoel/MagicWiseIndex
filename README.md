@@ -16,7 +16,7 @@ Combined Burden Estimate is run using [nextflow](https://www.nextflow.io). There
 To download the code to run Combined Burden Estimate, run
 
 ```
-git clone https://github.com/chloemoel/CombinedBurdenEstimate
+git clone https://github.com/chloemoel/MagicWiseIndex
 
 cd CombinedBurdenEstimate
 ```
