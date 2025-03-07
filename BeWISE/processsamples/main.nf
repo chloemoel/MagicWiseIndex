@@ -1,20 +1,20 @@
 #!/usr/bin/env nextflow
 
-process PROCESS_SAMPLES {
-    container "oras://community.wave.seqera.io/library/inmoose_pip_numpy_pandas:2c57c3780755c264"
-    
+process PROCESS_METHYLATION {
     publishDir params.outdir, mode: 'symlink'
-
+    container "bin/tools.sif"
+    
     input:
         path additional_data
-        val batch_correction
+        val batch_correction 
         path sample_sheet
         path sample_m_vals
-        
+    
     output:
-        path("m_values_processed.csv"), emit: csv
+        path "m_values_processed.csv", emit: csv
 
     script:
+        def batch = batch_correction.collect { batch -> "\"${batch}\"" }.join(", ")
         """
         #!/usr/bin/env python
 
@@ -23,38 +23,49 @@ process PROCESS_SAMPLES {
         import numpy as np
         from inmoose.pycombat import pycombat_norm
 
-        m_values = pd.read_csv("${sample_m_vals}",index_col=0)
-
-        ## Check to see if the first lines are from the sample sheet or if already cleaned.
+        # Check if sample sheet is raw or cleaned
         with open("${sample_sheet}", "r") as s:
-            if s.readline().split(",") == " ":
-                sample_info = pd.read_csv("${sample_sheet}", skiprows=7,index_col=0)
-            else:
-                sample_info = pd.read_csv("${sample_sheet}", index_col=0)
+            first_line = s.readline().split(",")
+            if first_line == [' ']:  # When it's in the raw form
+                sample_info = pd.read_csv("${sample_sheet}", skiprows=8)
+            else:  # Already cleaned
+                sample_info = pd.read_csv("${sample_sheet}")
 
-        # filter out sites with more than 10% of samples missing that probe. then fill NA with probe mean
+        # Rename sample_info columns
+        sample_info.columns = ["Study_ID","Sample_Well", "Sample_Plate", "Sample_Group", "Pool_ID", "Sentrix_ID", "Sentrix_Position"]
+
+        # Load m-values
+        m_values = pd.read_csv("${sample_m_vals}", index_col=0)
+
+        # Filter out probes with more than 10% missing data and fill NaN with mean of each probe
         thresh = int(len(m_values) * 0.1)
-        m_values.dropna(thresh=thresh , inplace=True, axis = 1)
-
-        #fills NA values with the mean of the probe
+        m_values.dropna(thresh=thresh, axis=1, inplace=True)
         m_values.fillna(m_values.mean(), axis=0, inplace=True)
 
         if "${batch_correction}" != "null":
             if "${additional_data}" != "null":
-                additional_data = pd.read_csv("${additional_data}", index_col=0)
-                sample_info = sample_info.merge(additional_data, left_index=True, right_index=True)
+                # Load additional data and merge with sample_info
+                additional_data = pd.read_csv("${additional_data}", index_col=0, dtype={0:str})
+                sample_info = sample_info.merge(additional_data, left_on="Study_ID", right_index=True)
 
+            # Create array_id for merging
             sample_info["array_id"] = sample_info["Sentrix_ID"].astype("str") + "_" + sample_info["Sentrix_Position"].astype("str")
+            sample_info["array_id"] = sample_info["array_id"].apply(lambda x: x.rstrip())
+            sample_info.set_index("array_id", inplace=True)
 
-            sample_info.sort_values(by = "array_id", key = m_values.columns, axis=0, inplace=True)
-            batch_columns = np.array(${batch_correction})
+            # Merge sample info and m_values so m values are in right order 
+            m_values = m_values.T.merge(sample_info, left_index=True, right_index=True)
+            header = m_values["Study_ID"]
+            m_values = m_values.drop(columns=sample_info.columns).T
 
-            #perform batch correction
-            for b in batch_columns:
-                m_values = pycombat_norm(m_values.drop(columns=batch_columns), m_values[b])
-                print("Batch correction for", b ,"done")
+            # Perform batch correction for each batch in the list
+            for b in [${batch}]:
+                m_values = pycombat_norm(m_values, sample_info[b])
 
+        #replace array id with study id
+        m_values.columns = header
+
+        # Save the processed m_values with samples as columns and probes as rows
         m_values.to_csv("m_values_processed.csv")
         """
 }
-
