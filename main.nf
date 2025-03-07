@@ -1,21 +1,24 @@
 #!/usr/bin/env nextflow
 
-include { PROCESS_SAMPLES }         from './BeWISE/processsamples/main.nf'
-include { CALCULATE_SCORE }         from './BeWISE/calculatescore/main.nf'
-include { CALCULATE_GENE_SCORE }    from './Genetic/calculatescore/main.nf'
-include { ANNOTATE_VCF }            from './Genetic/annotatevcf/main.nf'
-include { COMBINE }                 from './Combine/main.nf'
+include { PROCESS_METHYLATION }         from './BeWISE/processsamples/main.nf'
+include { CALCULATE_BEWISE }         from './BeWISE/calculatescore/main.nf'
+include { CALCULATE_BEMAGIC}    from './BeMAGIC/calculatescore/main.nf'
+include { ANNOTATE_VCF }            from './BeMAGIC/annotatevcf/main.nf'
+include { CALCULATE_MAGICWISE }                 from './MagicWise/main.nf'
 
 /*
  * Pipeline parameters
  */
 
 // Accessory files and default values
-params.probe_info          = "${projectDir}/data/ref/probe_info.csv"
-params.genome_fasta        = "${projectDir}/data/ref/GRCh37_genome.fa"
-params.CADD                = "${projectDir}/test_data"
-params.batch_correction    = null
-params.additional_data     = null
+params.probe_info          = "${projectDir}/data/probe_info.csv"
+params.cache_dir           = "${projectDir}/data/"
+params.genome_fasta        = "${projectDir}/data/homo_sapiens/113_GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz"
+params.cadd                = "${projectDir}/data/CADD/whole_genome_SNVs.tsv.gz"
+params.cadd_tbi            = "${projectDir}/data/CADD/whole_genome_SNVs.tsv.gz.tbi"
+params.batch_correction    = "null"
+params.additional_data     = "null"
+params.vcf                 = "null"
 
 workflow {
 
@@ -24,16 +27,17 @@ workflow {
     batch_correction = Channel.of(params.batch_correction)
     sample_sheet = Channel.fromPath(params.sample_sheet)
     sample_m_vals= Channel.fromPath(params.sample_m_vals)
-    gvcf = Channel.fromPath(params.gvcf)
-    CADD = Channel.fromPath(params.CADD)
-    
+    vcf = Channel.fromPath(params.vcf)
 
     // Load the file paths for the accessory files (reference and intervals)
-    genome_fasta = file(params.genome_fasta)
     probe_info = file(params.probe_info)
+    cache_dir = file(params.cache_dir)
+    genome_fasta = file(params.genome_fasta)
+    cadd = file(params.cadd)
+    cadd_tbi = file(params.cadd_tbi)
 
     //Clean up data and assess for batch correction
-    PROCESS_SAMPLES(
+    PROCESS_METHYLATION(
         additional_data,
         batch_correction,
         sample_sheet,
@@ -41,28 +45,29 @@ workflow {
     )
 
     // Calculate BeWISE score
-    CALCULATE_SCORE(
-        PROCESS_SAMPLES.out,
+    CALCULATE_BEWISE(
+        PROCESS_METHYLATION.out,
         probe_info
     )
 
-    // Annotate gvcf with VEP
+    // Annotate vcf with VEP
     ANNOTATE_VCF(
+        cache_dir,
+        vcf,
         genome_fasta,
-        gvcf,
-        CADD
+        cadd,
+        cadd_tbi
     )
 
-    // calculate genetic score
-    CALCULATE_GENE_SCORE(
+    // calculate BeMAGIC score
+    CALCULATE_BEMAGIC(
         ANNOTATE_VCF.out,
-        probe_info,
-        sample_sheet
+        probe_info
     )
 
     // combine the two scores into one
-    COMBINE(
-        CALCULATE_GENE_SCORE.out,
-        CALCULATE_SCORE.out
+    CALCULATE_MAGICWISE(
+        CALCULATE_BEMAGIC.out,
+        CALCULATE_BEWISE.out
     )
 }
