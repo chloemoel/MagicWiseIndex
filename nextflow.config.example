@@ -1,0 +1,53 @@
+/////////////
+// parameters
+params {
+  outdir              = "outputs/example_outputs"
+  tracedir            = "${params.outdir}/pipeline_info"
+  email_to            = ''
+  pipeline_email      = true
+  batch_correction    = ["Sentrix_ID","group"]
+  additional_data     = "${projectDir}/example_data/example_additional_data.csv"
+  sample_sheet        = "${projectDir}/example_data/example_sample_sheet.csv"
+  sample_m_vals       = "${projectDir}/example_data/example_m_values.csv"
+  vcf                 = "${projectDir}/example_data/example.vcf"
+}
+
+/////////////
+// timeline, report, trace, dag setup
+timeline {
+  enabled = true
+  file = "${params.tracedir}/execution_timeline.html"
+  overwrite = true
+}
+report {
+  enabled = true
+  file = "${params.tracedir}/execution_report.html"
+  overwrite = true
+}
+trace {
+  enabled = true
+  overwrite = true
+  file = "${params.tracedir}/execution_trace.txt"
+  fields = "task_id,hash,native_id,process,tag,name,status,exit,module,container,cpus,time,disk,memory,attempt,submit,start,complete,duration,realtime,queue,%cpu,%mem,rss,vmem,peak_rss,peak_vmem,rchar,wchar,syscr,syscw,read_bytes,write_bytes"
+}
+dag {
+  enabled = true
+  file = "${params.tracedir}/pipeline_dag.svg"
+  overwrite = true
+}
+///////////////
+// notifications
+notification {
+    enabled = params.pipeline_email
+    to = "${params.email_to}"
+}
+///////////////
+// profiles 
+profiles {
+     local {
+        process.executor = 'local'
+        apptainer.enabled = true
+        apptainer.cacheDir = "${projectDir}/bin"
+        apptainer.autoMounts = true
+    }
+}
