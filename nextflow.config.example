@@ -44,10 +44,36 @@ notification {
 ///////////////
 // profiles 
 profiles {
-     local {
+     singularity {
         process.executor = 'local'
         apptainer.enabled = true
         apptainer.cacheDir = "${projectDir}/bin"
         apptainer.autoMounts = true
+    }
+      docker {
+        process.executor = 'local'
+        process {
+          withName:PROCESS_METHYLATION {
+            container = 'tools_docker'
+          }
+          withName:CALCULATE_BEWISE {
+            container = 'tools_docker'
+          }
+          withName:ANNOTATE_VCF {
+            container = 'ensemblorg/ensembl-vep'
+          }
+          withName:CALCULATE_BEMAGIC {
+            container = 'tools_docker'
+          }
+          withName:PROCESS_METHYLATION {
+            container = 'tools_docker'
+          }
+          withName:CALCULATE_MAGICWISE {
+            container = 'tools_docker'
+          }
+        }       
+        docker.enabled = true
+        docker.cacheDir = "${projectDir}/bin"
+        docker.autoMounts = true
     }
 }

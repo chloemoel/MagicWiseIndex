@@ -136,7 +136,8 @@ If you are running after editing a file, you can run the following to resume
 
 Your score outputs can be found in the `outputs` directory
 
-To run the example data, run
+To run the example data, run either command (depending on your container system)
 ```
-./path/to/nextflow -C nextflow.config.example run main.nf -profile local 
+./path/to/nextflow -C nextflow.config.example run main.nf -profile docker 
+./path/to/nextflow -C nextflow.config.example run main.nf -profile singularity
 ```
