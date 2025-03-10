@@ -33,13 +33,14 @@ process PROCESS_METHYLATION {
 
         # Rename sample_info columns
         sample_info.columns = ["Study_ID","Sample_Well", "Sample_Plate", "Sample_Group", "Pool_ID", "Sentrix_ID", "Sentrix_Position"]
+        sample_info.dropna(subset = ["Study_ID","Sentrix_ID"], inplace=True)
 
-        # Load m-values
+        # Load m-values, samples as rows, probes as columns
         m_values = pd.read_csv("${sample_m_vals}", index_col=0)
 
         # Filter out probes with more than 10% missing data and fill NaN with mean of each probe
-        thresh = int(len(m_values) * 0.1)
-        m_values.dropna(thresh=thresh, axis=1, inplace=True)
+        thresh = int(len(m_values.columns) * 0.1)
+        m_values.dropna(thresh=thresh, axis=0, inplace=True)
         m_values.fillna(m_values.mean(), axis=0, inplace=True)
 
         if "${batch_correction}" != "null":
@@ -54,16 +55,17 @@ process PROCESS_METHYLATION {
             sample_info.set_index("array_id", inplace=True)
 
             # Merge sample info and m_values so m values are in right order 
-            m_values = m_values.T.merge(sample_info, left_index=True, right_index=True)
-            header = m_values["Study_ID"]
-            m_values = m_values.drop(columns=sample_info.columns).T
+            m_and_info = m_values.T.merge(sample_info, left_index=True, right_index=True)
+            header = m_and_info["Study_ID"]
+            m_values = m_and_info.drop(columns=sample_info.columns).T
 
             # Perform batch correction for each batch in the list
             for b in [${batch}]:
-                m_values = pycombat_norm(m_values, sample_info[b])
+                print(m_and_info[b])
+                m_values = pycombat_norm(m_values, m_and_info[b], na_cov_action="remove")
 
-        #replace array id with study id
-        m_values.columns = header
+            #replace array id with study id
+            m_values.columns = header
 
         # Save the processed m_values with samples as columns and probes as rows
         m_values.to_csv("m_values_processed.csv")

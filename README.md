@@ -128,3 +128,8 @@ If you are running after editing a file, you can run the following to resume
 ```
 
 Your score outputs can be found in the `outputs` directory
+
+To run the example data, run
+```
+./path/to/nextflow -C nextflow.config.example run main.nf -profile local 
+```
