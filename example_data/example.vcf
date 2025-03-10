@@ -4,8 +4,7 @@
 ##genomeBuild=37
 ##reference=file://GRCh37_genome.fa
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-##FORMAT=<ID=GS,Number=1,Type=Float,Description="GenCall score. For merged multi-assay or multi-allelic 
-record, min GenCall score is reported.">
+##FORMAT=<ID=GS,Number=1,Type=Float,Description="GenCall score. For merged multi-assay or multi-allelic record, min GenCall score is reported.">
 ##FORMAT=<ID=BAF,Number=1,Type=Float,Description="B Allele Frequency">
 ##FORMAT=<ID=LRR,Number=1,Type=Float,Description="Log R Ratio">
 ##contig=<ID=1,length=249250621>
