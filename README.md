@@ -21,19 +21,19 @@ git clone https://github.com/chloemoel/MagicWiseIndex
 cd MagicWiseIndex
 ```
 
-This pipeline was written with [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html) containers. If you would like to use [Docker](https://www.docker.com), see option install below. Please note, these files are fairly large. Please make sure you have adequate space. Additionally, these containers must be auto mounted (shown in example below), or have data mounted after install. 
+This pipeline was written with [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html) containers. If you would like to use [Docker](https://www.docker.com), see option install below. 
+
+Please note, these files are large. Please make sure you have adequate space. Additionally, these containers must be auto mounted (shown in example below), or have data mounted after install. 
 
 To install container images and necessary files with Singularity (default), run: 
 
 ```
-chmod +x install.sh
 ./install.sh
 ```
 
 To install container images and necessary files with Docker, run: 
 
 ```
-chmod +x install.sh
 ./install.sh docker
 ```
 
