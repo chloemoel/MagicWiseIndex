@@ -1,0 +1,8 @@
+*.config
+work/
+.nextflow/
+outputs/
+*.log*
+data/homo_sapiens
+data/CADD
+*.sif
