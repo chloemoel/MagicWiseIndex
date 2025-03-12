@@ -12,10 +12,10 @@ include { CALCULATE_MAGICWISE }                 from './MagicWise/main.nf'
 
 // Accessory files and default values
 params.probe_info          = "${projectDir}/data/probe_info.csv"
-params.cache_dir           = "${projectDir}/data/"
-params.genome_fasta        = "${projectDir}/data/homo_sapiens/113_GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz"
-params.cadd                = "${projectDir}/data/CADD/whole_genome_SNVs.tsv.gz"
-params.cadd_tbi            = "${projectDir}/data/CADD/whole_genome_SNVs.tsv.gz.tbi"
+params.cache_dir           = "${projectDir}/data/vep_data"
+params.genome_fasta        = "${projectDir}/data/vep_data/homo_sapiens/113_GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz"
+params.cadd                = "${projectDir}/data/vep_data/CADD/whole_genome_SNVs.tsv.gz"
+params.cadd_tbi            = "${projectDir}/data/vep_data/CADD/whole_genome_SNVs.tsv.gz.tbi"
 params.batch_correction    = "null"
 params.additional_data     = "null"
 params.vcf                 = "null"
