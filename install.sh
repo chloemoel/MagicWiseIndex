@@ -8,6 +8,7 @@ if [ "$1" == "docker" ]; then
 
     # Build Docker image for VEP
     docker pull ensemblorg/ensembl-vep
+    
     docker run -t -i -v $home_dir/data:/data ensemblorg/ensembl-vep INSTALL.pl -c $home_dir/data -a cfp -s homo_sapiens -y GRCh37 --PLUGINS CADD
 
     # Build Docker image for Python tools (based on tools.def)

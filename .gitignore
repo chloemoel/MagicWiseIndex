@@ -3,6 +3,5 @@ work/
 .nextflow/
 outputs/
 *.log*
-data/homo_sapiens
-data/CADD
+data/vep_data
 *.sif
