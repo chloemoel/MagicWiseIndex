@@ -47,7 +47,7 @@ profiles {
      singularity {
         process.executor = 'local'
         apptainer.enabled = true
-        apptainer.cacheDir = "${projectDir}/bin"
+        apptainer.cacheDir = "${projectDir}/data"
         apptainer.autoMounts = true
     }
       docker {
@@ -73,7 +73,7 @@ profiles {
           }
         }       
         docker.enabled = true
-        docker.cacheDir = "${projectDir}/bin"
+        docker.cacheDir = "${projectDir}/data"
         docker.autoMounts = true
     }
 }
