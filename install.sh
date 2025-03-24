@@ -17,7 +17,7 @@ if [ "$1" == "docker" ]; then
     wget -c https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh37/whole_genome_SNVs.tsv.gz.tbi
 
     # Build Docker image for Python tools (based on tools.def)
-    docker build -f tools_docker.def -t tools .
+    docker build -f tools_docker.def -t tools_docker .
     
 else
     echo "Installing tools with Singularity..."
