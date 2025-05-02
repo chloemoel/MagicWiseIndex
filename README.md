@@ -1,4 +1,4 @@
-gicWise Index
+MagicWise Index
 
 This tool is intended to be used to used to create a comprehensive score to compare two or more groups and identify causal genes. This is done in two parts with BeWISE (Burden Estimate from Weighted Integration of Site-specific Epigenetic Changes) and BeMAGIC (Burden Estimate from Modified and Associated Genetic Change) to create the MagicWise Index.
 
@@ -90,7 +90,7 @@ notification {
 profiles {
     high_computing_cluster {
       singularity.enabled = true
-      singularity.cacheDir = "${projectDir}/bin"
+      singularity.cacheDir = "${projectDir}/bin/containers"
       singularity.autoMounts = true
       process {
         executor = 'sge'
