@@ -1,8 +1,7 @@
 #!/usr/bin/env nextflow
 
 process PROCESS_METHYLATION {
-    publishDir params.outdir, mode: 'symlink'
-    container "bin/tools.sif"
+    publishDir params.outdir, mode: 'copy'
     
     input:
         path additional_data

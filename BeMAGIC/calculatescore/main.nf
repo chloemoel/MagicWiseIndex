@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 
 process CALCULATE_BEMAGIC {
-    publishDir params.outdir, mode: 'symlink'
-    container "bin/tools.sif"
+    publishDir params.outdir, mode: 'copy'
+    
     input:
         path vcf
         path probe_info
@@ -21,30 +21,21 @@ process CALCULATE_BEMAGIC {
 
     pd.set_option('future.no_silent_downcasting', True)
 
-    def get_vcf_names(vcf_path):
-        with open(vcf_path, "rt") as ifile:
-            for line in ifile:
-                if line.startswith("#CHROM"):
-                    vcf_names = line.strip('#\\n').split('\\t')
-                    break
-        ifile.close()
-        return vcf_names
-
-    # Get VCF column names (including sample names)
-    names = get_vcf_names('${vcf}')
-
     # Load the VCF file
-    vcf = pd.read_csv('${vcf}', comment='#', sep='\\t', header=None, names=names, low_memory=False)
+    vcf = pd.read_csv('${vcf}', sep='\\t', low_memory=False)
 
     # Filter based on the chromosome and ensure the index aligns
     vcf = vcf[~vcf["CHROM"].isin(["MT", "Y", "X"])]
 
-    # Add CADD_RAW and Gene as its own column
-    vcf["CADD_RAW"] = vcf["INFO"].apply(lambda x: x.split('|')[-1])
-    vcf["Gene"] = vcf["INFO"].apply(lambda x: x.split('|')[3])
+    # Add CADD_RAW and Gene as its own column and explode any entries with multiple genes
+    vcf["CADD_RAW"] = vcf["INFO"].apply(lambda x: x.split('|')[-1].split("CADD_raw_hg19=")[-1])
+    vcf["CADD_RAW"] = vcf["CADD_RAW"].replace(to_replace='.', value = 0)
+    vcf["Gene"] = vcf["INFO"].apply(lambda x: x.split('|')[0].split("genename=")[-1])
+    vcf["Gene"] = vcf['Gene'].str.split(';').apply(lambda genes: list(set(genes)))
+    vcf = vcf.explode("Gene", ignore_index=True)
 
     # Get the sample names (from the 9th column onward)
-    sample_names = names[9:]  # These should be the sample names in the VCF file
+    sample_names = vcf.columns[~vcf.columns.isin(["CADD_RAW","Gene","INFO","CHROM","POS","ID","REF","ALT","QUAL","FILTER","FORMAT"])]  # These should be the sample names in the VCF file
 
     # Process the genotypes for each sample
     for col in sample_names:
@@ -90,4 +81,3 @@ process CALCULATE_BEMAGIC {
     scored_gene.to_csv("BeMAGIC_score.csv")
     """
 }
-

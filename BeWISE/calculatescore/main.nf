@@ -1,8 +1,7 @@
 #!/usr/bin/env nextflow
 
 process CALCULATE_BEWISE {
-    publishDir params.outdir, mode: 'symlink'
-    container "bin/tools.sif"
+    publishDir params.outdir, mode: 'copy'
     
     input:
        path processed_m_values 
@@ -23,6 +22,7 @@ process CALCULATE_BEWISE {
 
     ## Merge m values with probe information so weights are in correct order
     score = m_values.merge(probe_info[["weights"]], left_index=True, right_index=True)
+    #score["weights"] = score["weights"].apply(lambda x: 1/(x+0.0000000001)) ##Testing 1/std dev
 
     sample_columns = score.drop(columns=["weights"])
     cpg_weights = score["weights"]
@@ -49,4 +49,3 @@ process CALCULATE_BEWISE {
     """
 
 }
-

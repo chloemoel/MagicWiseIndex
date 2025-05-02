@@ -1,24 +1,20 @@
 #!/usr/bin/env nextflow
 
-include { PROCESS_METHYLATION }         from './BeWISE/processsamples/main.nf'
-include { CALCULATE_BEWISE }         from './BeWISE/calculatescore/main.nf'
+include { PROCESS_METHYLATION } from './BeWISE/processsamples/main.nf'
+include { CALCULATE_BEWISE }    from './BeWISE/calculatescore/main.nf'
 include { CALCULATE_BEMAGIC}    from './BeMAGIC/calculatescore/main.nf'
-include { ANNOTATE_VCF }            from './BeMAGIC/annotatevcf/main.nf'
-include { CALCULATE_MAGICWISE }                 from './MagicWise/main.nf'
+include { ANNOTATE_VCF }        from './BeMAGIC/annotatevcf/main.nf'
+include { CALCULATE_MAGICWISE } from './MagicWise/main.nf'
 
 /*
  * Pipeline parameters
  */
 
 // Accessory files and default values
-params.probe_info          = "${projectDir}/data/probe_info.csv"
-params.cache_dir           = "${projectDir}/data/vep_data"
-params.genome_fasta        = "${projectDir}/data/vep_data/homo_sapiens/113_GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz"
-params.cadd                = "${projectDir}/data/vep_data/CADD/whole_genome_SNVs.tsv.gz"
-params.cadd_tbi            = "${projectDir}/data/vep_data/CADD/whole_genome_SNVs.tsv.gz.tbi"
+params.probe_info          = "${projectDir}/bin/data/probe_info.csv"
+params.dbnsfp              = "${projectDir}/bin/data/dbNSFP4.9a.MagicWise.txt"
 params.batch_correction    = "null"
 params.additional_data     = "null"
-params.vcf                 = "null"
 
 workflow {
 
@@ -29,12 +25,9 @@ workflow {
     sample_m_vals= Channel.fromPath(params.sample_m_vals)
     vcf = Channel.fromPath(params.vcf)
 
-    // Load the file paths for the accessory files (reference and intervals)
+    // Load the file paths for the accessory files (dbnsfp and methylation probe info)
     probe_info = file(params.probe_info)
-    cache_dir = file(params.cache_dir)
-    genome_fasta = file(params.genome_fasta)
-    cadd = file(params.cadd)
-    cadd_tbi = file(params.cadd_tbi)
+    dbnsfp = file(params.dbnsfp)
 
     //Clean up data and assess for batch correction
     PROCESS_METHYLATION(
@@ -52,11 +45,8 @@ workflow {
 
     // Annotate vcf with VEP
     ANNOTATE_VCF(
-        cache_dir,
-        vcf,
-        genome_fasta,
-        cadd,
-        cadd_tbi
+        dbnsfp,
+        vcf
     )
 
     // calculate BeMAGIC score
