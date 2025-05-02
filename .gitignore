@@ -3,5 +3,3 @@ work/
 .nextflow/
 outputs/
 *.log*
-data/vep_data
-*.sif

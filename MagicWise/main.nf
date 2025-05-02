@@ -1,8 +1,7 @@
 #!/usr/bin/env nextflow
 
 process CALCULATE_MAGICWISE {
-    publishDir params.outdir, mode: 'symlink'
-    container "bin/tools.sif"
+    publishDir params.outdir, mode: 'copy'
 
     input:
         path genetic_score
