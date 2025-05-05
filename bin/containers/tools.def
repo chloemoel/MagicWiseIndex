@@ -1,0 +1,18 @@
+Bootstrap: docker
+From: python:3.11
+
+%post
+    # Update and install system dependencies
+    apt-get update && apt-get install -y \
+        build-essential \
+        curl \
+        python3-pip \
+        procps \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Install Python packages
+    pip install --no-cache-dir pandas numpy inmoose
+
+%environment
+    # Set environment variables
+    export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.11/site-packages

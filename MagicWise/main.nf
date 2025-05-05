@@ -27,8 +27,8 @@ process CALCULATE_MAGICWISE {
         common_genetic = genetic_score.loc[common_samples.index, common_genes.index]
         common_bewise = bewise_score.loc[common_samples.index, common_genes.index]
 
-        phred_bewise = common_bewise.rank(method="dense", ascending=False).apply(lambda x: -10*(np.log10(x/len(common_bewise.columns))))
-        phred_genetic = common_genetic.rank(method="dense", ascending=False).apply(lambda x: -10*(np.log10(x/len(common_genetic.columns))))
+        phred_bewise = common_bewise.rank(method="dense", ascending=False).apply(lambda x: -10*(np.log10(1/x)))
+        phred_genetic = common_genetic.rank(method="dense", ascending=False).apply(lambda x: -10*(np.log10(1/x)))
         
         combined_score = phred_genetic + phred_bewise
 

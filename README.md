@@ -90,7 +90,7 @@ notification {
 profiles {
     high_computing_cluster {
       singularity.enabled = true
-      singularity.cacheDir = "${projectDir}/bin"
+      singularity.cacheDir = "${projectDir}/bin/containers"
       singularity.autoMounts = true
       process {
         executor = 'sge'
