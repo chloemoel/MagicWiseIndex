@@ -63,9 +63,15 @@ process PROCESS_METHYLATION {
                 print(m_and_info[b])
                 m_values = pycombat_norm(m_values, m_and_info[b], na_cov_action="remove")
 
-        #replace array id with study id
-        m_values.columns = header
+            #replace array id with study id
+            m_values.columns = header
 
+        else: #when there is no batch correction
+            m_and_info = m_values.T.merge(sample_info, left_index=True, right_index=True)
+            header = m_and_info["Study_ID"] 
+            m_values = m_and_info.drop(columns=sample_info.columns).T
+            m_values.columns = header
+ 
         # Save the processed m_values with samples as columns and probes as rows
         m_values.to_csv("m_values_processed.csv")
         """

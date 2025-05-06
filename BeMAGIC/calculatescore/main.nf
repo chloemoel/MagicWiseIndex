@@ -28,7 +28,7 @@ process CALCULATE_BEMAGIC {
     chunksize=10**6
     
     # Load the VCF file
-    for vcf in pd.read_csv('${vcf}', sep='\\t', low_memory=False, chunksize=chunksize)
+    for vcf in pd.read_csv('${vcf}', sep='\\t', low_memory=False, chunksize=chunksize):
 
         # Filter based on the chromosome and ensure the index aligns
         vcf = vcf[~vcf["CHROM"].isin(["MT", "Y", "X"])]
