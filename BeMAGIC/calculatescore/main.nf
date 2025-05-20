@@ -24,11 +24,17 @@ process CALCULATE_BEMAGIC {
     # Load gene information
     gene_info = pd.read_csv("${probe_info}", usecols=["Gene", "gene_length", "Transcript count"])
     gene_info.drop_duplicates(inplace=True)    
-    
+   
+    # Remove any duplicate samples 
+    header = pd.read_csv('${vcf}', sep='\\t', nrows=1, header=0)
+    if header.columns.duplicated().any() == True:
+        print("WARNING: You have duplicate sample names! Only using first instance")
+        header = header.drop_duplicates()
+
     chunksize=10**6
     
     # Load the VCF file
-    for vcf in pd.read_csv('${vcf}', sep='\\t', low_memory=False, chunksize=chunksize):
+    for vcf in pd.read_csv('${vcf}', sep='\\t', low_memory=False, chunksize=chunksize, usecols=header):
 
         # Filter based on the chromosome and ensure the index aligns
         vcf = vcf[~vcf["CHROM"].isin(["MT", "Y", "X"])]
@@ -48,12 +54,13 @@ process CALCULATE_BEMAGIC {
             vcf[col] = vcf[col].apply(lambda x: x.split(":")[0])
 
         # Replace genotypes with numeric values
-        vcf.replace(to_replace=['0/0'], value=0, inplace=True)
-        vcf.replace(to_replace=['0/1'], value=1, inplace=True)
-        vcf.replace(to_replace=['1/1'], value=2, inplace=True)
-        vcf.replace(to_replace=['0/2'], value=None, inplace=True)
-        vcf.replace(to_replace=['./.'], value=None, inplace=True)  
-
+        vcf.replace(to_replace=r"0[/|]0", value=0, regex=True, inplace=True)
+        vcf.replace(to_replace=r"0[/|]1", value=1, regex=True, inplace=True)
+        vcf.replace(to_replace=r"1[/|]0", value=1, regex=True, inplace=True)
+        vcf.replace(to_replace=r"1[/|]1", value=2, regex=True, inplace=True)
+        vcf.replace(to_replace=r"0[/|]2", value=None, regex=True, inplace=True)
+        vcf.replace(to_replace=r"[.][/|][.]", value=None, regex=True, inplace=True)
+        
         # Drop rows with too many missing values
         thresh = int(len(sample_names) * 0.1)
         vcf.dropna(thresh=thresh, inplace=True)

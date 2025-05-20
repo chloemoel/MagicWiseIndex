@@ -9,7 +9,7 @@ include { CALCULATE_BEMAGIC}    from './BeMAGIC/calculatescore/main.nf'
 
 // Accessory files and default values
 params.probe_info          = "${projectDir}/bin/data/probe_info.csv"
-params.dbnsfp              = "${projectDir}/bin/data/"
+params.dbnsfp              = "${projectDir}/bin/data/dbNSFP4.9a.MagicWise.txt"
 
 workflow {
 
