@@ -18,8 +18,8 @@ process CALCULATE_MAGICWISE {
         import pandas as pd
         import numpy as np
 
-        genetic_score = pd.read_csv("${genetic_score}", index_col=0)
-        bewise_score = pd.read_csv("${bewise_score}", index_col=0)
+        genetic_score = pd.read_csv("${genetic_score}", index_col=0,dtype={0:object})
+        bewise_score = pd.read_csv("${bewise_score}", index_col=0,dtype={0:object})
 
         common_samples = bewise_score.merge(genetic_score, left_index=True, right_index=True)
         common_genes = bewise_score.T.merge(genetic_score.T, left_index=True, right_index=True)

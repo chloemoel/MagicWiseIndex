@@ -60,13 +60,16 @@ process PROCESS_METHYLATION {
 
             # Perform batch correction for each batch in the list
             for b in [${batch}]:
-                print(m_and_info[b])
                 m_values = pycombat_norm(m_values, m_and_info[b], na_cov_action="remove")
 
             #replace array id with study id
             m_values.columns = header
 
         else: #when there is no batch correction
+            sample_info["array_id"] = sample_info["Sentrix_ID"].astype("str") + "_" + sample_info["Sentrix_Position"].astype("str")
+            sample_info["array_id"] = sample_info["array_id"].apply(lambda x: x.rstrip())
+            sample_info.set_index("array_id", inplace=True)            
+
             m_and_info = m_values.T.merge(sample_info, left_index=True, right_index=True)
             header = m_and_info["Study_ID"] 
             m_values = m_and_info.drop(columns=sample_info.columns).T
