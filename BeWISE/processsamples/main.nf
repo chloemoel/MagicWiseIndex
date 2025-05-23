@@ -24,15 +24,22 @@ process PROCESS_METHYLATION {
 
         # Check if sample sheet is raw or cleaned
         with open("${sample_sheet}", "r") as s:
-            first_line = s.readline().split(",")
-            if first_line == [' ']:  # When it's in the raw form
-                sample_info = pd.read_csv("${sample_sheet}", skiprows=8)
-            else:  # Already cleaned
-                sample_info = pd.read_csv("${sample_sheet}")
+            first_line = s.readline().strip().split(",")
+
+        # Normalize values for comparison
+        first_line = [item.strip().strip("[]'\\"") for item in first_line]
+
+        # Determine how to read the CSV based on the first line
+        if first_line == [' ', 'Header', ' ']:  # If it's in raw form
+            sample_info = pd.read_csv("${sample_sheet}", skiprows=8)
+        elif 'Study_ID' in first_line:  # Common header case
+            sample_info = pd.read_csv("${sample_sheet}", skiprows=1)
+        else:  # Already cleaned
+            sample_info = pd.read_csv("${sample_sheet}")
 
         # Rename sample_info columns
         sample_info.columns = ["Study_ID","Sample_Well", "Sample_Plate", "Sample_Group", "Pool_ID", "Sentrix_ID", "Sentrix_Position"]
-        sample_info.dropna(subset = ["Study_ID","Sentrix_ID"], inplace=True)
+        sample_info.dropna(subset = ["Study_ID","Sentrix_Position"], inplace=True)
 
         # Load m-values, samples as rows, probes as columns
         m_values = pd.read_csv("${sample_m_vals}", index_col=0)
@@ -68,7 +75,7 @@ process PROCESS_METHYLATION {
         else: #when there is no batch correction
             sample_info["array_id"] = sample_info["Sentrix_ID"].astype("str") + "_" + sample_info["Sentrix_Position"].astype("str")
             sample_info["array_id"] = sample_info["array_id"].apply(lambda x: x.rstrip())
-            sample_info.set_index("array_id", inplace=True)            
+            sample_info.set_index("array_id", inplace=True)           
 
             m_and_info = m_values.T.merge(sample_info, left_index=True, right_index=True)
             header = m_and_info["Study_ID"] 
