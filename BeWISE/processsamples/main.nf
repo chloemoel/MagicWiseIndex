@@ -31,11 +31,11 @@ process PROCESS_METHYLATION {
 
         # Determine how to read the CSV based on the first line
         if first_line == [' ', 'Header', ' ']:  # If it's in raw form
-            sample_info = pd.read_csv("${sample_sheet}", skiprows=8)
+            sample_info = pd.read_csv("${sample_sheet}", skiprows=8, header=None)
         elif 'Study_ID' in first_line:  # Common header case
-            sample_info = pd.read_csv("${sample_sheet}", skiprows=1)
+            sample_info = pd.read_csv("${sample_sheet}", skiprows=1, header=None)
         else:  # Already cleaned
-            sample_info = pd.read_csv("${sample_sheet}")
+            sample_info = pd.read_csv("${sample_sheet}",header = None)
 
         # Rename sample_info columns
         sample_info.columns = ["Study_ID","Sample_Well", "Sample_Plate", "Sample_Group", "Pool_ID", "Sentrix_ID", "Sentrix_Position"]
@@ -62,7 +62,7 @@ process PROCESS_METHYLATION {
 
             # Merge sample info and m_values so m values are in right order 
             m_and_info = m_values.T.merge(sample_info, left_index=True, right_index=True)
-            header = m_and_info["Study_ID"]
+            header = m_and_info["Study_ID"].astype(object)
             m_values = m_and_info.drop(columns=sample_info.columns).T
 
             # Perform batch correction for each batch in the list
@@ -78,7 +78,7 @@ process PROCESS_METHYLATION {
             sample_info.set_index("array_id", inplace=True)           
 
             m_and_info = m_values.T.merge(sample_info, left_index=True, right_index=True)
-            header = m_and_info["Study_ID"] 
+            header = m_and_info["Study_ID"].astype(object) 
             m_values = m_and_info.drop(columns=sample_info.columns).T
             m_values.columns = header
  
