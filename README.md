@@ -21,7 +21,7 @@ git clone https://github.com/chloemoel/MagicWiseIndex
 cd MagicWiseIndex
 ```
 
-This pipeline was written with [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html) containers. If you would like to use [Docker](https://www.docker.com), see option install below. 
+This pipeline was written with [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html) containers. If you would like to use [Docker](https://www.docker.com), see optional install below. 
 
 Please note, these files are large. Please make sure you have adequate space. Additionally, these containers must be auto mounted (shown in example below), or have data mounted after install. 
 
@@ -39,76 +39,7 @@ To install container images and necessary files with Docker, run:
 
 ### Config File Creation
 
-This pipeline is run dependent on a nextflow config file saved in the base directory of the workflow. This is an example of a config file
-
-```
-/////////////
-// parameters
-params {
-  outdir              = "outputs"
-  tracedir            = "${params.outdir}/pipeline_info"
-  email_to            = 'youremail@email.com'
-  pipeline_email      = true
-  batch_correction    = ["Sentrix_ID"]
-  additional_data     = "/user_data/additional_data.csv"
-  sample_sheet        = "/user_data/sample_sheet.csv"
-  sample_m_vals       = "/user_data/methylation_values.csv"
-  vcf                 = "/user_data/merged.vcf"
-}
-
-/////////////
-// timeline, report, trace, dag setup
-timeline {
-  enabled = true
-  file = "${params.tracedir}/execution_timeline.html"
-  overwrite = true
-}
-report {
-  enabled = true
-  file = "${params.tracedir}/execution_report.html"
-  overwrite = true
-}
-trace {
-  enabled = true
-  overwrite = true
-  file = "${params.tracedir}/execution_trace.txt"
-  fields = "task_id,hash,native_id,process,tag,name,status,exit,module,container,cpus,time,disk,memory,attempt,submit,start,complete,duration,realtime,queue,%cpu,%mem,rss,vmem,peak_rss,peak_vmem,rchar,wchar,syscr,syscw,read_bytes,write_bytes"
-}
-dag {
-  enabled = true
-  file = "${params.tracedir}/pipeline_dag.svg"
-  overwrite = true
-}
-///////////////
-// notifications
-notification {
-    enabled = params.pipeline_email
-    to = "${params.email_to}"
-}
-///////////////
-// profiles 
-profiles {
-    high_computing_cluster {
-      singularity.enabled = true
-      singularity.cacheDir = "${projectDir}/bin/containers"
-      singularity.autoMounts = true
-      process {
-        executor = 'sge'
-        queue = 'yourqueue'
-        memory = 256.GB
-            cpus = 56
-        penv = 'smp'
-    }
-    }
-
-     local {
-        process.executor = 'local'
-        singularity.enabled = true
-        singularity.cacheDir = "${projectDir}/bin"
-        singularity.autoMounts = true
-    }
-}
-```
+This pipeline is run dependent on a nextflow config file saved in the base directory of the workflow. You can find an example nexflow config file [here](nextflow.config.example)
 
 You can find more information on config files [here](https://www.nextflow.io/docs/latest/config.html)
 

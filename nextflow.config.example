@@ -38,6 +38,14 @@ dag {
   file = "${params.tracedir}/pipeline_dag.svg"
   overwrite = true
 }
+
+log{
+  enabled = true
+  overwrite= true
+  file = "${params.tracedir}/execution_log.txt"
+  fields="task_id,hash,native_id,process,name,status,stdout,stderr"
+}
+
 //////////////////
 //notifications//
 /////////////////
@@ -56,6 +64,7 @@ profiles {
     singularity.enabled = true
     singularity.cacheDir = "${projectDir}/bin/containers"
     singularity.autoMounts = true
+    singularity.container = "file://${projectDir}/bin/containers/tools.sif"
     }
 
   docker {
