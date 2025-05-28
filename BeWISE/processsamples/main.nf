@@ -69,9 +69,6 @@ process PROCESS_METHYLATION {
             for b in [${batch}]:
                 m_values = pycombat_norm(m_values, m_and_info[b], na_cov_action="remove")
 
-            #replace array id with study id
-            m_values.columns = header
-
         else: #when there is no batch correction
             sample_info["array_id"] = sample_info["Sentrix_ID"].astype("str") + "_" + sample_info["Sentrix_Position"].astype("str")
             sample_info["array_id"] = sample_info["array_id"].apply(lambda x: x.rstrip())
@@ -80,8 +77,15 @@ process PROCESS_METHYLATION {
             m_and_info = m_values.T.merge(sample_info, left_index=True, right_index=True)
             header = m_and_info["Study_ID"].astype(object) 
             m_values = m_and_info.drop(columns=sample_info.columns).T
+            
+        if len(header) == len(set(header)):
             m_values.columns = header
- 
+        else:
+            print("WARNING! multiple samples found for one or more subjects. We will take the average of their score")
+            m_values_ = m_values.T
+            m_values_["Header"] = header
+            m_values = m_values_.groupby(by="Header",group_keys=False, as_index=True, sort=False).mean().T
+
         # Save the processed m_values with samples as columns and probes as rows
         m_values.to_csv("m_values_processed.csv")
         """
