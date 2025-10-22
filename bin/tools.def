@@ -10,9 +10,10 @@ From: python:3.11
         procps \
         && rm -rf /var/lib/apt/lists/*
 
+%runscript
     # Install Python packages
-    pip install --no-cache-dir pandas numpy inmoose
+    pip install --no-cache-dir pandas numpy inmoose cyvcf2
 
 %environment
     # Set environment variables
-    export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.9/site-packages
+    export PYTHONPATH=$PYTHONPATH:/usr/local/lib/python3.11/site-packages

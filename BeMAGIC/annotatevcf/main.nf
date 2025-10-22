@@ -8,7 +8,7 @@ process ANNOTATE_VCF {
         path vcf
     
     output:
-        path "annotated.merged.vcf", emit: vcf
+        path "${vcf}_ANNOTATED", emit: vcf
 
     script:
     """
@@ -16,14 +16,15 @@ process ANNOTATE_VCF {
 
     import pandas as pd
     import numpy as np
+    import gzip
 
     # Load dbNSFP (assuming it fits in memory)
-    dbnsfp = pd.read_csv('${dbnsfp}', sep='\\t', header=None, dtype={'CHROM': 'Int64', 'POS': 'Int64'})
+    dbnsfp = pd.read_csv('${dbnsfp}', sep='\\t', dtype={'CHROM': 'Int64', 'POS': 'Int64'})
     dbnsfp.columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO']
     
     # Find number of rows to skip
     row_skip = 0
-    with open("${vcf}", "rt") as ifile:
+    with gzip.open("${vcf}", "rt") as ifile:
         for line in ifile:
             if not line.startswith("#CHROM"):
                 row_skip += 1
@@ -37,7 +38,7 @@ process ANNOTATE_VCF {
     round_time = 1
 
     # Read VCF in chunks to avoid loading everything into memory at once
-    for chunk in pd.read_csv('${vcf}', skiprows=row_skip, sep='\\t', header=0, low_memory=False, chunksize=chunksize):
+    for chunk in pd.read_csv('${vcf}', skiprows=row_skip, sep='\\t', header=0, low_memory=False, chunksize=chunksize, compression="gzip"):
         # Remove duplicated columns and clean up the VCF data
         chunk = chunk.loc[:, ~chunk.columns.duplicated()]  # Takes first instance of duplicated column
         chunk.drop(columns=['ID', 'QUAL', 'FILTER', 'INFO'], inplace=True)
@@ -60,9 +61,9 @@ process ANNOTATE_VCF {
         # Write out annotated data incrementally to avoid memory overload. only add header on first round
         if round_time == 1:
             round_time += 1
-            annotated_chunk.to_csv("annotated.merged.vcf", sep='\\t', mode='a',header=True, index=False)
+            annotated_chunk.to_csv("${vcf}_ANNOTATED", sep='\\t', mode='a',header=True, index=False)
         else:
-            annotated_chunk.to_csv("annotated.merged.vcf", sep='\\t', mode='a',header=False, index=False)
+            annotated_chunk.to_csv("${vcf}_ANNOTATED", sep='\\t', mode='a',header=False, index=False)
     """
     
 }
