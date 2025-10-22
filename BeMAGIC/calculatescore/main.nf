@@ -4,7 +4,7 @@ process CALCULATE_BEMAGIC {
     publishDir params.outdir, mode: 'copy'
     
     input:
-        path vcf
+        each vcf
         path probe_info
         
     output:
@@ -42,7 +42,7 @@ process CALCULATE_BEMAGIC {
         # Add CADD_RAW and Gene as its own column and explode any entries with multiple genes
         vcf["CADD_RAW"] = vcf["INFO"].apply(lambda x: x.split('|')[-1].split("CADD_raw_hg19=")[-1])
         vcf["CADD_RAW"] = vcf["CADD_RAW"].replace(to_replace='.', value = 0)
-        vcf["Gene"] = vcf["INFO"].apply(lambda x: x.split('|')[0].split("genename=")[-1])
+        vcf["Gene"] = vcf["INFO"].apply(lambda x: x.split('|')[1].split("ensembl_geneid=")[-1])
         vcf["Gene"] = vcf['Gene'].str.split(';').apply(lambda genes: list(set(genes)))
         vcf = vcf.explode("Gene", ignore_index=True)
 

@@ -64,12 +64,13 @@ profiles {
     singularity.enabled = true
     singularity.cacheDir = "${projectDir}/bin/containers"
     singularity.autoMounts = true
-    singularity.container = "file://${projectDir}/bin/containers/tools.sif"
+    singularity.container = "corrychlois/magicwise:latest"
     }
 
   docker {
     docker.enabled = true
     docker.cacheDir = "${projectDir}/bin/containers"
     docker.autoMounts = true
+    docker.container = "corrychlois/magicwise:latest"
   }
 }

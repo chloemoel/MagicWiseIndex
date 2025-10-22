@@ -20,25 +20,15 @@ git clone https://github.com/chloemoel/MagicWiseIndex
 
 cd MagicWiseIndex
 ```
-
-This pipeline was written with [Singularity](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html) containers. If you would like to use [Docker](https://www.docker.com), see optional install below. 
-
-Please note, these files are large. Please make sure you have adequate space. Additionally, these containers must be auto mounted (shown in example below), or have data mounted after install. 
-
-To install container images and necessary files with Singularity (default), run: 
+To install necessary data files, run: 
 
 ```
 ./install.sh
 ```
 
-To install container images and necessary files with Docker, run: 
+This workflow is written to work with a container system. There is no container install needed before running the pipeline, as Nextflow will find, install, and cache the container. The example config file mentioned below shows how to use and set a cache directory. This workflow will work with Apptainer, Singularity, or Docker systems.
 
-```
-./install.sh docker
-```
-
-### Config File Creation
-
+### Config Files
 This pipeline is run dependent on a nextflow config file saved in the base directory of the workflow. You can find an example nexflow config file [here](nextflow.config.example)
 
 You can find more information on config files [here](https://www.nextflow.io/docs/latest/config.html)

@@ -15,6 +15,7 @@ params.probe_info          = "${projectDir}/bin/data/probe_info.csv"
 params.dbnsfp              = "${projectDir}/bin/data/dbNSFP4.9a.MagicWise.txt"
 params.batch_correction    = "null"
 params.additional_data     = "null"
+params.ens_to_gene         = "${projectDir}/bin/data/ensembl_togenename_genes_hg19.csv"
 
 workflow {
 
@@ -28,6 +29,7 @@ workflow {
     // Load the file paths for the accessory files (dbnsfp and methylation probe info)
     probe_info = file(params.probe_info)
     dbnsfp = file(params.dbnsfp)
+    ens_to_gene = file(params.ens_to_gene)
 
     //Clean up data and assess for batch correction
     PROCESS_METHYLATION(
@@ -44,20 +46,21 @@ workflow {
     )
 
     // Annotate vcf with VEP
-    ANNOTATE_VCF(
+    annotated_vcfs = ANNOTATE_VCF(
         dbnsfp,
         vcf
-    )
+    ).collect().view()
 
     // calculate BeMAGIC score
     CALCULATE_BEMAGIC(
-        ANNOTATE_VCF.out,
+        annotated_vcfs,
         probe_info
     )
 
     // combine the two scores into one
     CALCULATE_MAGICWISE(
         CALCULATE_BEMAGIC.out,
-        CALCULATE_BEWISE.out
+        CALCULATE_BEWISE.out,
+	ens_to_gene
     )
 }

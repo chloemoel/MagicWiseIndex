@@ -22,20 +22,8 @@ process PROCESS_METHYLATION {
         import numpy as np
         from inmoose.pycombat import pycombat_norm
 
-        # Check if sample sheet is raw or cleaned
-        with open("${sample_sheet}", "r") as s:
-            first_line = s.readline().strip().split(",")
-
-        # Normalize values for comparison
-        first_line = [item.strip().strip("[]'\\"") for item in first_line]
-
-        # Determine how to read the CSV based on the first line
-        if first_line == [' ', 'Header', ' ']:  # If it's in raw form
-            sample_info = pd.read_csv("${sample_sheet}", skiprows=8, header=None)
-        elif 'Study_ID' in first_line:  # Common header case
-            sample_info = pd.read_csv("${sample_sheet}", skiprows=1, header=None)
-        else:  # Already cleaned
-            sample_info = pd.read_csv("${sample_sheet}",header = None)
+        # Read in sample sheet. The dropna below should clean up any iteration of the sample sheet
+        sample_info = pd.read_csv("${sample_sheet}",header = None)
 
         # Rename sample_info columns
         sample_info.columns = ["Study_ID","Sample_Well", "Sample_Plate", "Sample_Group", "Pool_ID", "Sentrix_ID", "Sentrix_Position"]
