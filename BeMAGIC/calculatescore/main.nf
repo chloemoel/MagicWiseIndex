@@ -80,8 +80,8 @@ process CALCULATE_BEMAGIC {
         grouped_gene_info = grouped_gene.merge(gene_info, left_index=True, right_on="Gene")
 
         # Standardize gene length and transcript count
-        length = zscore(grouped_gene_info["gene_length"])
-        transcript = zscore(grouped_gene_info["Transcript count"])
+        length = (2-1)*((grouped_gene_info["gene_length"] - np.min(grouped_gene_info["gene_length"])) / (np.max(grouped_gene_info["gene_length"]) - np.min(grouped_gene_info["gene_length"]))) + 1
+        transcript = (2-1)*((grouped_gene_info["Transcript count"] - np.min(grouped_gene_info["Transcript count"])) / (np.max(grouped_gene_info["Transcript count"]) - np.min(grouped_gene_info["Transcript count"]))) + 1
 
         # Normalize the score by gene length and transcript count
         scored_gene = grouped_gene_info.drop(columns=gene_info.columns).T.astype(float) / transcript / length

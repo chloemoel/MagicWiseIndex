@@ -38,8 +38,11 @@ process CALCULATE_BEWISE {
     collapse = full.groupby(["Gene","gene_length","Transcript count"]).agg('sum')
 
     samples = collapse.reset_index(drop=True)
-    length = zscore(collapse.index.get_level_values("gene_length"))
-    transcript_count = zscore(collapse.index.get_level_values("Transcript count"))
+    length_row = collapse.index.get_level_values("gene_length")
+    transcript_count_row = collapse.index.get_level_values("Transcript count")
+
+    length = (2-1)*((length_row - np.min(length_row)) / (np.max(length_row) - np.min(length_row))) + 1
+    transcript_count = length = (2-1)*((transcript_count_row - np.min(transcript_count_row)) / (np.max(transcript_count_row) - np.min(transcript_count_row))) + 1
 
     weighted_by_gene = samples.div(length, axis = "index").div(transcript_count, axis = "index")
     weighted_by_gene.index = collapse.index.get_level_values("Gene")
