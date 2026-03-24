@@ -41,9 +41,9 @@ process CALCULATE_BEWISE {
     length_row = collapse.index.get_level_values("gene_length")
     transcript_count_row = collapse.index.get_level_values("Transcript count")
 
-    length = (2-1)*((length_row - np.min(length_row)) / (np.max(length_row) - np.min(length_row))) + 1
-    transcript_count = length = (2-1)*((transcript_count_row - np.min(transcript_count_row)) / (np.max(transcript_count_row) - np.min(transcript_count_row))) + 1
-
+    length = np.sqrt(length_row)
+    transcript_count = np.sqrt(transcript_count_row)
+    
     weighted_by_gene = samples.div(length, axis = "index").div(transcript_count, axis = "index")
     weighted_by_gene.index = collapse.index.get_level_values("Gene")
 
