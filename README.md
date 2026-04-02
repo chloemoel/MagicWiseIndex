@@ -1,19 +1,19 @@
 # MagicWise Index
 
-This tool is intended to be used to used to create a comprehensive score to compare two or more groups and identify causal genes. This is done in two parts with BeWISE (Burden Estimate from Weighted Integration of Site-specific Epigenetic Changes) and BeMAGIC (Burden Estimate from Modified and Associated Genetic Change) to create the MagicWise Index.
+This tool is intended to be used to used to create a comprehensive score to compute genetic burden based one genetic and epigenetic variation. This is done in two parts with BeWISE (Burden Estimate from Weighted Integration of Site-specific Epigenetic Changes) and BeMAGIC (Burden Estimate from Modified and Associated Genetic Change) to create the MagicWise Index.
 
 ## Getting Started
 
 ### Installation
 
-Combined Burden Estimate is run using [nextflow](https://www.nextflow.io). There are several ways to install and manage nextflow as noted on their website. Once installed, run the following to insure proper setup. 
+Combined Burden Estimate is run using [Nextflow](https://www.nextflow.io). There are several ways to install and manage Nextflow as noted on their website. Once installed, run the following to insure proper setup. 
 
 ```
 # Run from directory that nextflow is installed in
 ./nextflow run hello
 ```
 
-To download the code to run Combined Burden Estimate, run
+To download the source code, run
 
 ```
 git clone https://github.com/chloemoel/MagicWiseIndex
@@ -29,7 +29,7 @@ To install necessary data files, run:
 This workflow is written to work with a container system. There is no container install needed before running the pipeline, as Nextflow will find, install, and cache the container. The example config file mentioned below shows how to use and set a cache directory. This workflow will work with Apptainer, Singularity, or Docker systems.
 
 ### Config Files
-This pipeline is run dependent on a nextflow config file saved in the base directory of the workflow. You can find an example nexflow config file [here](nextflow.config.example)
+This pipeline is run dependent on a nextflow config file saved in the base directory of the workflow. You can find an example Nextflow config file [here](nextflow.config.example)
 
 You can find more information on config files [here](https://www.nextflow.io/docs/latest/config.html)
 
@@ -43,7 +43,7 @@ You can find more information on config files [here](https://www.nextflow.io/doc
 
 ### Useage
 
-To run this pipeline after you have installed nextflow, run the install script, and have created your config file:
+To run this pipeline after you have installed Nextflow, run the install script, and have created your config file:
 
 ```
 ./path/to/nextflow run main.nf -profile high_computing_cluster
