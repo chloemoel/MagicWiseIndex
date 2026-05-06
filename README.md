@@ -6,7 +6,7 @@ This tool is intended to be used to used to create a comprehensive score to comp
 
 ### Installation
 
-Combined Burden Estimate is run using [Nextflow](https://www.nextflow.io). There are several ways to install and manage Nextflow as noted on their website. Once installed, run the following to insure proper setup. 
+MagicWise is run using [Nextflow](https://www.nextflow.io). There are several ways to install and manage Nextflow as noted on their website. Once installed, run the following to insure proper setup. 
 
 ```
 # Run from directory that nextflow is installed in
@@ -48,6 +48,12 @@ Only ```Sample_Name, Sentrix_ID, and Sentrix_Position``` are required. Sample na
 * batch_correction -- list of variables to correct for in batch correction during BeWISE. Should be either in the sample_sheet file (ie, Sentrix_ID for chip correction) or a column from the additional data file. 
 
 #### Sequencing (bisulfite conversion, long-read)
+To use bisulfite data with MagicWise, make sure to add the following to your config file:
+
+'''
+params.sequencing_type = "bisulfite"
+'''
+
 * additional_data (csv file) -- this a sheet with additional data used for batch correction during the BeWISE calculation. This csv file must contain the study id in the first column, and then any other information in subsequent columns.
 * bisulfite_files (csv files) -- files that for each sample have the headers:
 ```
