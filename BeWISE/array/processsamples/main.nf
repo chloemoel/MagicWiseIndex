@@ -1,14 +1,14 @@
 #!/usr/bin/env nextflow
 
-process PROCESS_METHYLATION {
+process PROCESS_METHYLATION_ARRAY {
     publishDir params.outdir, mode: 'copy'
     
     input:
-        path additional_data
-        val batch_correction 
+        val batch_correction
         path sample_sheet
         path sample_m_vals
-    
+        path additional_data
+
     output:
         path "m_values_processed.csv", emit: csv
 
@@ -21,7 +21,8 @@ process PROCESS_METHYLATION {
         import pandas as pd
         import numpy as np
         from inmoose.pycombat import pycombat_norm
-
+        
+        
         # Read in sample sheet. The dropna below should clean up any iteration of the sample sheet
         sample_info = pd.read_csv("${sample_sheet}",header = None)
 
@@ -36,6 +37,7 @@ process PROCESS_METHYLATION {
         thresh = int(len(m_values.columns) * 0.1)
         m_values.dropna(thresh=thresh, axis=0, inplace=True)
         m_values.fillna(m_values.mean(), axis=0, inplace=True)
+
 
         if "${batch_correction}" != "null":
             if "${additional_data}" != "null":
@@ -65,7 +67,10 @@ process PROCESS_METHYLATION {
             m_and_info = m_values.T.merge(sample_info, left_index=True, right_index=True)
             header = m_and_info["Study_ID"].astype(object) 
             m_values = m_and_info.drop(columns=sample_info.columns).T
-            
+       
+
+
+       
         if len(header) == len(set(header)):
             m_values.columns = header
         else:

@@ -1,6 +1,6 @@
 # MagicWise Index
 
-This tool is intended to be used to used to create a comprehensive score to compute genetic burden based one genetic and epigenetic variation. This is done in two parts with BeWISE (Burden Estimate from Weighted Integration of Site-specific Epigenetic Changes) and BeMAGIC (Burden Estimate from Modified and Associated Genetic Change) to create the MagicWise Index.
+This tool is intended to be used to used to create a comprehensive score to compute genetic burden based on genetic and epigenetic variation. This is done in two parts with BeWISE (Burden Estimate from Weighted Integration of Site-specific Epigenetic Changes) and BeMAGIC (Burden Estimate from Modified and Associated Genetic Change) to create the MagicWise Index.
 
 ## Getting Started
 
@@ -34,12 +34,31 @@ This pipeline is run dependent on a nextflow config file saved in the base direc
 You can find more information on config files [here](https://www.nextflow.io/docs/latest/config.html)
 
 ### Input File formats
+Depending on your methylation data, you will need the following files:
 
-* sample_sheet (csv file) -- this sample sheet is used for the BeWISE calculation only, as the genetic score depends on a vcf with headers as study id names. This sample sheet is based on the Illumina sample sheet format with headers as follows: Sample_Name,Sample_Well,Sample_Plate,Sample_Group,Pool_ID,Sentrix_ID,Sentrix_Position. Only Sample_Name, Sentrix_ID, and Sentrix_Position are required. Sample name MUST match the headers of the vcf file. 
+#### Array data 
+* sample_sheet (csv file) -- this sample sheet is used for the BeWISE calculation only, as the genetic score depends on a vcf with headers as study id names. This sample sheet is based on the Illumina sample sheet format with headers as follows: 
+```
+Sample_Name,Sample_Well,Sample_Plate,Sample_Group,Pool_ID,Sentrix_ID,Sentrix_Position. 
+```
+Only ```Sample_Name, Sentrix_ID, and Sentrix_Position``` are required. Sample name MUST match the headers of the vcf file. 
 * additional_data (csv file) -- this a sheet with additional data used for batch correction during the BeWISE calculation. This csv file must contain the study id in the first column, and then any other information in subsequent columns
 * sample_m_vals (csv file) -- a file with probes as rows and samples as columns. Samples should be in the [Sentrix_ID]_[Sentrix_Position] format. To calculate m values, we use `SeSAME` (more info can be found [here](https://zhou-lab.github.io/sesame/v1.16/sesame.html)). Probes should be in either the EPIC or 450k array format (NOT EPICv2). 
-* vcf -- a multisample vcf file with all samples included in a single file. QC for genotyping calls should be done before running this tool.
+* vcf -- a multisample vcf file with all samples included in a single file. QC for genotyping calls should be done before running this tool.**Locations should be 1-based, and in GRCh37** 
 * batch_correction -- list of variables to correct for in batch correction during BeWISE. Should be either in the sample_sheet file (ie, Sentrix_ID for chip correction) or a column from the additional data file. 
+
+#### Sequencing (bisulfite conversion, long-read)
+* additional_data (csv file) -- this a sheet with additional data used for batch correction during the BeWISE calculation. This csv file must contain the study id in the first column, and then any other information in subsequent columns.
+* bisulfite_files (csv files) -- files that for each sample have the headers:
+```
+chromosome,start,stop,sample_name
+```
+Where sample_name is the same as the sample name in the vcf, and the column cotains beta values for each site.**Locations should be 0-based, and in GRCh37** 
+* vcf -- a multisample vcf file with all samples included in a single file. QC for genotyping calls should be done before running this tool.**Locations should be 1-based, and in GRCh37** 
+* batch_correction -- list of variables to correct for in batch correction during BeWISE.
+
+**NOTE:** As this data (vs array data) tends to be much larger, the processing step is slightly different. We utilize sqlite to create a database to store data for preprocessing. 
+
 
 ### Useage
 
