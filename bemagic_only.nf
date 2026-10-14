@@ -20,16 +20,17 @@ workflow {
     probe_info = file(params.probe_info)
     dbnsfp = file(params.dbnsfp)
 
-    // Annotate vcf with VEP
-    ANNOTATE_VCF(
+    // Annotate vcf
+    annotated_vcfs = ANNOTATE_VCF(
         dbnsfp,
         vcf
-    )
+    ).collect()
 
     // calculate BeMAGIC score
     CALCULATE_BEMAGIC(
-        ANNOTATE_VCF.out,
+        annotated_vcfs,
         probe_info
     )
+
 
 }

@@ -24,7 +24,7 @@ workflow {
 
 
     if (params.sequencing_type == "bisulfite") {
-        batch_correction	= params.batch_correction	? Channel.fromPath(params.batch_correction) : Channel.value([])
+        batch_correction	= []
         additional_data		= params.additional_data	? Channel.fromPath(params.additional_data) : Channel.value([])
         bisulfite_files 	= Channel.fromPath(params.bisulfite_files).collect()
 
@@ -42,7 +42,7 @@ workflow {
 
     } else {
 
-        batch_correction	= params.batch_correction	? Channel.fromPath(params.batch_correction) : Channel.value([])
+        batch_correction	= []
         additional_data		= params.additional_data	? Channel.fromPath(params.additional_data) : Channel.value([])
         sample_sheet		= Channel.fromPath(params.sample_sheet) 
         sample_m_vals 		= Channel.fromPath(params.sample_m_vals) 

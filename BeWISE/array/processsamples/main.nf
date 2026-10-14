@@ -39,8 +39,8 @@ process PROCESS_METHYLATION_ARRAY {
         m_values.fillna(m_values.mean(), axis=0, inplace=True)
 
 
-        if "${batch_correction}" != "null":
-            if "${additional_data}" != "null":
+        if "${batch_correction}" not in ("null", "", "[]"):
+            if "${additional_data}" not in ("null", "", "[]"):
                 # Load additional data and merge with sample_info
                 additional_data = pd.read_csv("${additional_data}", index_col=0, dtype={0:str})
                 sample_info = sample_info.merge(additional_data, left_on="Study_ID", right_index=True)
@@ -56,7 +56,7 @@ process PROCESS_METHYLATION_ARRAY {
             m_values = m_and_info.drop(columns=sample_info.columns).T
 
             # Perform batch correction for each batch in the list
-            for b in [${batch}]:
+            for b in ["${batch}"]:
                 m_values = pycombat_norm(m_values, m_and_info[b], na_cov_action="remove")
 
         else: #when there is no batch correction
