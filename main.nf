@@ -4,23 +4,25 @@ include { PROCESS_METHYLATION_ARRAY } from './BeWISE/array/processsamples/main.n
 include { CALCULATE_BEWISE_ARRAY }    from './BeWISE/array/calculatescore/main.nf'
 include { PROCESS_METHYLATION_BIS } from './BeWISE/bisulfite/processsamples/main.nf'
 include { CALCULATE_BEWISE_BIS }    from './BeWISE/bisulfite/calculatescore/main.nf'
+include { PREPROCESS_5BP }            from './BeWISE/5bp/preprocesssamples/main.nf'
+include { PROCESS_METHYLATION_5BP }   from './BeWISE/5bp/processsamples/main.nf'
+include { CALCULATE_BEWISE_5BP }      from './BeWISE/5bp/calculatescore/main.nf'
 include { CALCULATE_BEMAGIC}    from './BeMAGIC/calculatescore/main.nf'
 include { ANNOTATE_VCF }        from './BeMAGIC/annotatevcf/main.nf'
 include { CALCULATE_MAGICWISE } from './MagicWise/main.nf'
 
-/*
- * Pipeline parameters
- */
-
-
-// Accessory files and default values
-probe_info		= file("${projectDir}/bin/data/probe_info.csv")
-dbnsfp			= file("${projectDir}/bin/data/dbNSFP4.9a.MagicWise.txt")
-ens_to_gene     = file("${projectDir}/bin/data/ensembl_togenename_genes_hg19.csv")
-
 workflow {
 
-    vcf			= params.vcf ? Channel.fromPath(params.vcf) : channel.empty()
+    /*
+     * Pipeline parameters
+     */
+
+ 
+    // Accessory files and default values
+    probe_info              = file("${projectDir}/bin/data/probe_info.csv")
+    dbnsfp                  = file("${projectDir}/bin/data/dbNSFP4.9a.MagicWise.txt")
+    ens_to_gene             = file("${projectDir}/bin/data/ensembl_togenename_genes_hg19.csv")
+    vcf			    = params.vcf ? Channel.fromPath(params.vcf) : channel.empty()
 
 
     if (params.sequencing_type == "bisulfite") {
@@ -40,7 +42,31 @@ workflow {
             probe_info
         )
 
-    } else {
+    } 
+    else if (params.sequencing_type == "5bp") {
+        batch_correction        = []
+        additional_data         = params.additional_data        ? Channel.fromPath(params.additional_data) : Channel.value([])
+        cx_files                = Channel.fromPath(params.cx_files)
+
+
+
+        PREPROCESS_5BP(
+            cx_files
+        )
+
+        PROCESS_METHYLATION_5BP(
+            batch_correction,
+            PREPROCESS_5BP.out.collect(),
+            additional_data,
+        )
+
+        BeWISE = CALCULATE_BEWISE_5BP(
+            PROCESS_METHYLATION_5BP.out,
+            probe_info
+        )
+
+    }
+     else {
 
         batch_correction	= []
         additional_data		= params.additional_data	? Channel.fromPath(params.additional_data) : Channel.value([])
