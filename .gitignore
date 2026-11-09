@@ -5,5 +5,5 @@ outputs/
 *.log*
 *.sif
 *.img
-bin/data/dbNSFP4.9a.MagicWise.txt.gz
+bin/data/dbNSFP4.9a.MagicWise.txt*
 bin/data/probe_info.csv.gz
